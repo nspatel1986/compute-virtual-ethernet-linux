@@ -1003,7 +1003,7 @@ gve_get_flow_rule_entry(struct gve_priv *priv, struct ethtool_rxnfc *cmd)
 	if (priv->flow_rules_max == 0)
 		return -EOPNOTSUPP;
 
-	spin_lock_bh(&priv->flow_rules_lock);
+	spin_lock(&priv->flow_rules_lock);
 	rule = gve_find_flow_rule_by_loc(priv, fsp->location);
 	if (!rule) {
 		err = -EINVAL;
@@ -1118,7 +1118,7 @@ gve_get_flow_rule_entry(struct gve_priv *priv, struct ethtool_rxnfc *cmd)
 	fsp->ring_cookie = rule->action;
 
 ret:
-	spin_unlock_bh(&priv->flow_rules_lock);
+	spin_unlock(&priv->flow_rules_lock);
 	return err;
 }
 
@@ -1135,7 +1135,7 @@ gve_get_flow_rule_ids(struct gve_priv *priv, struct ethtool_rxnfc *cmd,
 
 	cmd->data = priv->flow_rules_max;
 
-	spin_lock_bh(&priv->flow_rules_lock);
+	spin_lock(&priv->flow_rules_lock);
 	list_for_each_entry(rule, &priv->flow_rules, list) {
 		if (cnt == cmd->rule_cnt) {
 			err = -EMSGSIZE;
@@ -1147,7 +1147,7 @@ gve_get_flow_rule_ids(struct gve_priv *priv, struct ethtool_rxnfc *cmd,
 	cmd->rule_cnt = cnt;
 
 ret:
-	spin_unlock_bh(&priv->flow_rules_lock);
+	spin_unlock(&priv->flow_rules_lock);
 	return err;
 }
 
@@ -1281,7 +1281,7 @@ static int gve_add_flow_rule(struct gve_priv *priv, struct ethtool_rxnfc *cmd)
 		return -ENOSPC;
 	}
 
-	spin_lock_bh(&priv->flow_rules_lock);
+	spin_lock(&priv->flow_rules_lock);
 	if (gve_find_flow_rule_by_loc(priv, fsp->location)) {
 		dev_err(&priv->pdev->dev, "Flow rule %d already exists\n",
 			fsp->location);
@@ -1307,7 +1307,7 @@ static int gve_add_flow_rule(struct gve_priv *priv, struct ethtool_rxnfc *cmd)
 	gve_print_flow_rule(priv, rule);
 
 ret:
-	spin_unlock_bh(&priv->flow_rules_lock);
+	spin_unlock(&priv->flow_rules_lock);
 	if (err && rule)
 		kfree(rule);
 	return err;
@@ -1322,7 +1322,7 @@ static int gve_del_flow_rule(struct gve_priv *priv, struct ethtool_rxnfc *cmd)
 	if (priv->flow_rules_max == 0)
 		return -EOPNOTSUPP;
 
-	spin_lock_bh(&priv->flow_rules_lock);
+	spin_lock(&priv->flow_rules_lock);
 	rule = gve_find_flow_rule_by_loc(priv, fsp->location);
 	if (!rule) {
 		err = -EINVAL;
@@ -1336,7 +1336,7 @@ static int gve_del_flow_rule(struct gve_priv *priv, struct ethtool_rxnfc *cmd)
 	gve_flow_rules_del_rule(priv, rule);
 
 ret:
-	spin_unlock_bh(&priv->flow_rules_lock);
+	spin_unlock(&priv->flow_rules_lock);
 	return err;
 }
 
