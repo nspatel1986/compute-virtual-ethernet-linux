@@ -12,6 +12,7 @@
 #include <linux/pci.h>
 #include <linux/u64_stats_sync.h>
 
+#include "gve_linux_version.h"
 #include "gve_desc.h"
 #include "gve_desc_dqo.h"
 
